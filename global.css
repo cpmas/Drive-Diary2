@@ -1,0 +1,185 @@
+:root {
+    --gutter: 20px;
+    --c-primary: #000000;
+  }
+
+  .app {
+    position: relative;
+    display: flex;
+    flex-direction: column; 
+    height: 100%; 
+  }
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden; 
+    touch-action: none; 
+    height: 100%; 
+  }
+  
+  * {
+    font-family: 'roboto', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-weight: 500;
+  }
+  
+  body {
+    background: #fff;
+    color: #000000;
+    font-family: Roboto, Helvetica, sans-serif;
+    padding: 5rem;
+  }
+  h1{
+    font-size: 2.5rem;
+    padding: 0px;
+    margin: 0px;
+    font-weight: 900;
+    margin-right: 0.4rem;
+  }
+  h2 {
+    font-size: 1.9rem;
+    margin: 0px;
+    padding: 0px;
+    margin-bottom:1rem;
+    font-weight: 600;
+  }
+  
+  
+  p {
+    font-size: 16px;
+    line-height: 1.2;
+  }
+  
+  i {
+    font-size: 1.5rem;
+  }
+  
+  
+  .viewport {
+    width: 100vw; 
+    height: 100vh; 
+    position: absolute;
+    top: 0; 
+    left: 0; 
+    transform: none; 
+    background: var(--c-primary);
+    overflow: hidden;
+  }
+  
+  
+  header {
+    position: absolute;
+    top: 1rem;
+    color: #fafafa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+  }
+  
+  footer {
+    width: calc(100% - var(--gutter) * 2);
+    background: var(--c-primary);
+    color: #fff;
+    position: absolute;
+    bottom: 0;
+    padding: var(--gutter);
+    border-radius: 3rem;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 3.7rem;
+    z-index: 2;
+  }
+  
+  footer i {
+    font-size: 2.2rem;
+  }
+
+  footer a {
+    color: white; 
+    text-decoration: none; 
+    transition: color 0.3s ease; 
+  }
+
+  footer a:hover {
+    color: #f0f0f0; 
+  }
+  
+  footer a.active {
+    color: #f0f0f0; 
+  }
+  
+  .viewport {
+    overflow: visible;
+  }
+  .app--body {
+    position: absolute;
+    top: 9rem;
+    bottom: 0;
+    height: auto;
+    width: 100%;
+    background: #fff;
+    border-radius: 1.5rem 1.5rem 0 0;
+    box-shadow: 0 -0.5rem 1.5rem rgba(0, 0, 0, 0.17);
+    padding: var(--gutter);
+    box-sizing: border-box;
+    overflow-y: auto; 
+    margin: 0;
+    
+  }
+  
+  .app--body no-scrollbar {
+    width: 100%;
+  }
+  
+  .app--body > * {
+    width: 100%; 
+    max-width: 100%;
+    margin: 0 auto; 
+  }
+  
+  .app > * {
+    grid-column: 1/-1;
+  }
+
+
+  .app--body > * {
+    width: 100%; 
+    max-width: 100%;
+    margin: 0 auto; 
+  }
+  
+  .app--body > * {
+    width: 100%; 
+    max-width: 100%;
+    margin: 0 auto; 
+  }
+  
+  
+  button:hover {
+    cursor: pointer;
+  }
+  
+  #logo {
+    width: 3.5rem;
+    margin: 0px;
+  }
+
+  input {
+    border: solid rgb(194, 194, 194) 1px;
+    font-size: 16px;
+  }
+  textarea {
+    border: solid rgb(194, 194, 194) 1px;
+    font-size: 16px;
+  }
+  label {
+    font-size: 18px;
+  }
+
+  #date {
+    color: #000000;
+  }
+

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DriveDiary</title>
+  
+  <!-- CSS files -->
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/css/all.min.css'>
+  <link rel="stylesheet" href="./log_style.css">
+  <link rel="stylesheet" href="global.css">
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js"></script>
+  <!-- Firebase configuration -->
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+
+<div class="viewport">
+  <div class="app">
+    
+    <header class="header">
+      <h1>DriveDiary</h1>
+      <img id="logo" src="logo.png" alt="">
+    </header>
+
+    <div class="hs">
+      <div id="summary-tally">
+        <p class="summary"><strong>This Week's Total KM:</strong> <span id="this-week-total">0</span> km</p>
+        <p class="summary"><strong>Average Weekly KM:</strong> <span id="weekly-average">0</span> km</p>
+        <p class="summary"><strong>Total KM (This Financial Year):</strong> <span id="total-fy">0</span> km</p>
+      </div>
+    </div>
+    
+    <div class="app--body no-scrollbar">
+      <div class="vs">
+        <!-- Log Section -->
+        <section id="summary">
+          <h2>Your Log Entries</h2>
+          <div id="sum-scroll">
+            <table>
+              <tbody id="log-entries">
+                <!-- Entries inserted here -->
+              </tbody>
+            </table>
+          </div>  
+        </section>
+      </div>
+    </div>
+  
+    <footer class="footer">
+      <a href="index.html"><i class="fas fa-home"></i></a>
+      <a href="log-summary.html"><i class="fas fa-chart-pie"></i></a>
+      <a href="login.html"><i class="fas fa-user-alt"></i></a>
+    </footer>
+  </div>
+</div>
+
+<!-- Ensure the user is logged in -->
+<script>
+  firebase.auth().onAuthStateChanged(user => {
+    if (!user) {
+      window.location.href = "login.html";
+    }
+  });
+</script>
+<script src="log-summary.js"></script>
+</body>
+</html>
