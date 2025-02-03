@@ -1,0 +1,101 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  html, body {
+    height: 100%;
+    width: 100%;
+    font-family: Arial, sans-serif;
+  }
+  /* Full-screen black background with white text */
+  body {
+    background-color: #000;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  /* Container for the login form */
+  .login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+  }
+  .login-container h1 {
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    position: relative;
+    top: -20px; 
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .form-group {
+    text-align: left;
+  }
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+  }
+  /* Input fields: white background with black text, modern border radius */
+  input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 0.8rem;
+    font-size: 1rem;
+    color: #000;
+    background-color: #fff;
+  }
+  /* Login button: white background, black text, modern border radius */
+  .login-button {
+    padding: 0.75rem;
+    margin-top: 0.7rem;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .login-button:hover {
+    background: #e6e6e6;
+  }
+
+  .register-link {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-top: 1rem;
+  }
+
+  .register-link a {
+    text-decoration: underline;
+    color: #8e6a6a;
+  }
+  .register-link a:hover {
+    text-decoration: underline;
+  }
+
+  .forgot-password {
+    font-size: 0.9rem;
+    margin: 1rem 0;
+  }
+  
+  .forgot-password a {
+    text-decoration: underline;
+    color: #8e6a6a; /* Or choose a color that fits your design */
+  }
+  
+  .forgot-password a:hover {
+    color: #ccc;
+  }

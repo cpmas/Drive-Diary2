@@ -1,0 +1,95 @@
+/* profile.css */
+
+/* Container styling */
+.profile-container {
+    padding: 2rem;
+    margin: 0 auto;
+    text-align: center;
+  }
+  
+  header {
+    padding: 0px;
+  }
+  /* Header styling */
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+  
+  /* Profile Info Section */
+  .profile-info {
+    margin-bottom: 2rem;
+  }
+  
+  .profile-info p {
+    margin: 0.5rem 0;
+    font-size: 1.1rem;
+  }
+  
+  /* Account Management Buttons */
+  .account-actions button {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .account-actions button:hover {
+    background: #e6e6e6;
+  }
+  
+  /* Footer Button (Sign Out) */
+  .foot button {
+    width: 100%;
+    padding: 0.75rem;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 2rem;
+  }
+  
+  .foot button:hover {
+    background: #e6e6e6;
+  }
+  
+  /* Ensure full-screen layout */
+  body {
+    background-color: #000;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 0px;
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  .go-back-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.2rem;
+    padding: 5px 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+    z-index: 1000;
+  }
+  
+  .go-back-button:hover {
+    background: rgba(0, 0, 0, 0.7);
+  }
+  

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Profile - DriveDiary</title>
+  <link rel="stylesheet" href="global.css">
+  <link rel="stylesheet" href="profile.css">
+  <!-- Firebase SDKs (using compat versions) -->
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+  <!-- Firebase configuration -->
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+  <a href="index.html" class="go-back-button">&larr; Back</a>
+  <div class="profile-container">
+    <h1>My Profile</h1>
+    <section class="profile-info">
+      <p id="display-name">Name: </p>
+      <p id="email-display">Email: </p>
+    </section>
+    <section class="account-actions">
+      <button id="edit-profile-button">Edit Profile</button>
+      <button id="change-password-button">Change Password</button>
+    </section>
+    
+    <!-- Footer Section -->
+    <div class="foot">
+      <button id="sign-out-button">Sign Out</button>
+    </div>
+  </div>
+
+  <script>
+    // Update profile information based on the authenticated user.
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        document.getElementById('email-display').textContent = 'Email: ' + user.email;
+        document.getElementById('display-name').textContent = 'Name: ' + (user.displayName || 'User');
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+    
+    // Sign Out functionality.
+    document.getElementById('sign-out-button').addEventListener('click', function() {
+      firebase.auth().signOut().then(function() {
+        window.location.href = "login.html";
+      }).catch(function(error) {
+        alert("Error signing out: " + error.message);
+      });
+    });
+
+    // Edit Profile button handler: allows user to update their display name.
+    document.getElementById('edit-profile-button').addEventListener('click', function() {
+      var newName = prompt("Enter your new display name:");
+      if (newName && newName.trim() !== "") {
+        var user = firebase.auth().currentUser;
+        user.updateProfile({
+          displayName: newName
+        }).then(function() {
+          // Update the UI with the new display name.
+          document.getElementById('display-name').textContent = 'Name: ' + newName;
+          alert("Profile updated successfully.");
+        }).catch(function(error) {
+          alert("Error updating profile: " + error.message);
+        });
+      } else {
+        alert("Please enter a valid name.");
+      }
+    });
+
+    // Change Password button handler: sends a password reset email.
+    document.getElementById('change-password-button').addEventListener('click', function() {
+      var user = firebase.auth().currentUser;
+      if (user && user.email) {
+        firebase.auth().sendPasswordResetEmail(user.email)
+          .then(function() {
+            alert("Password reset email sent. Please check your inbox.");
+          })
+          .catch(function(error) {
+            alert("Error: " + error.message);
+          });
+      } else {
+        alert("No user is signed in.");
+      }
+    });
+  </script>
+</body>
+</html>
