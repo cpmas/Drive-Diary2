@@ -1,3 +1,4 @@
+
 const CACHE_NAME = 'drive-diary-cache-v1';
 const urlsToCache = [
   '/', // Ensure this caches the index.html
