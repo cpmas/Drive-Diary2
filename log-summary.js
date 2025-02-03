@@ -1,4 +1,3 @@
-// log-summary.js
 
 document.addEventListener('DOMContentLoaded', function () {
     firebase.auth().onAuthStateChanged(user => {
