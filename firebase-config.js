@@ -1,5 +1,4 @@
 // firebase-config.js
-// Replace these config values with your own Firebase project configuration.
 const firebaseConfig = {
     apiKey: "AIzaSyDOhFkhk3DY1b5QjerhaQdbMMjuise6zB0",
     authDomain: "drivediary-9a260.firebaseapp.com",
