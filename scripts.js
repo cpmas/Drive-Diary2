@@ -1,4 +1,3 @@
-// scripts.js
 
 // Register Service Worker (if used)
 if ("serviceWorker" in navigator) {
