@@ -16,7 +16,7 @@ body {
   padding: 5rem;
 }
 h1{
-  font-size: 2rem;
+  
   padding: 0px;
   margin: 0px;
   font-weight: 900;
@@ -45,7 +45,7 @@ i {
   color: #000000;
   margin-bottom: 2rem;
   padding-top: 2rem;
-  margin-bottom: 4rem;
+  margin-bottom: 5rem;
 }
 .hhs {
   display: flex;
