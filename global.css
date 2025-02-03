@@ -114,11 +114,11 @@
   .viewport {
     overflow: visible;
   }
+
   .app--body {
     position: absolute;
     top: 9rem;
     bottom: 0;
-    height: auto;
     width: 100%;
     background: #fff;
     border-radius: 1.5rem 1.5rem 0 0;
@@ -127,8 +127,9 @@
     box-sizing: border-box;
     overflow-y: hidden; 
     margin: 0;
-    
-  }
+    height: calc(100vh - [header height] - [footer height]);
+    overflow: hidden; /
+    }
   
   .app--body no-scrollbar {
     width: 100%;
