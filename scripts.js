@@ -68,56 +68,60 @@ if ("serviceWorker" in navigator) {
     const updateInput = document.getElementById('update-start-odometer');
     const updateLabel = document.querySelector('#quick-go-update label');
   
-    // Wait for authentication to be ready
-    firebase.auth().onAuthStateChanged(user => {
-      // Set the current date regardless of the user state.
+    // Listen for auth state changes.
+    firebase.auth().onAuthStateChanged(async user => {
+      console.log("initializeQuickGo: onAuthStateChanged triggered, user:", user);
+      // Always set today's date.
       quickGoState.date = new Date().toISOString().split('T')[0];
-  
       if (user) {
-        // Query Firestore for the latest log entry
-        db.collection("users")
-          .doc(user.uid)
-          .collection("logs")
-          .orderBy("timestamp", "desc")
-          .limit(1)
-          .get()
-          .then(querySnapshot => {
-            let yesterdayEndKM = 0;
-            if (!querySnapshot.empty) {
-              const lastEntry = querySnapshot.docs[0].data();
-              yesterdayEndKM = lastEntry.endOdometer;
-            }
-            quickGoState.startOdometer = yesterdayEndKM;
-            if (yesterdayEndKM) {
-              goButton.textContent = `Resume with Last Reading: ${yesterdayEndKM.toLocaleString()}km`;
-              updateInput.value = yesterdayEndKM;
-            } else {
-              goButton.textContent = 'Enter Start KM';
-            }
-          })
-          .catch(error => {
-            console.error("Error getting last log entry:", error);
+        try {
+          // Query the latest log entry for the signed-in user.
+          const querySnapshot = await db
+            .collection("users")
+            .doc(user.uid)
+            .collection("logs")
+            .orderBy("timestamp", "desc")
+            .limit(1)
+            .get();
+          let yesterdayEndKM = 0;
+          if (!querySnapshot.empty) {
+            const lastEntry = querySnapshot.docs[0].data();
+            yesterdayEndKM = lastEntry.endOdometer;
+            console.log("Latest log entry found:", lastEntry);
+          } else {
+            console.log("No previous log entry found.");
+          }
+          quickGoState.startOdometer = yesterdayEndKM;
+          // Update the go button's text.
+          if (yesterdayEndKM) {
+            goButton.textContent = `Resume with Last Reading: ${yesterdayEndKM.toLocaleString()}km`;
+            updateInput.value = yesterdayEndKM;
+          } else {
             goButton.textContent = 'Enter Start KM';
-          });
+          }
+        } catch (error) {
+          console.error("Error getting last log entry:", error);
+          goButton.textContent = 'Enter Start KM';
+        }
       } else {
-        // If no user is signed in, set default values
         quickGoState.startOdometer = 0;
         goButton.textContent = 'Enter Start KM';
       }
     });
   
-    // Event listener for the Go button
+    // When the user clicks the go button.
     goButton.addEventListener('click', () => {
       quickGoState.startOdometer = parseFloat(updateInput.value);
       alert(`Starting KM set to ${quickGoState.startOdometer}`);
+      // Hide the go button and show the end day button.
       goButton.style.display = 'none';
       endButton.style.display = 'inline-block';
       updateLabel.textContent = 'End KM:';
       updateInput.placeholder = 'Enter End KM';
-      updateInput.value = ''; // Clear the field for end KM input
+      updateInput.value = ''; // Clear the field for end KM input.
     });
   
-    // Event listener for the End Day button
+    // When the user clicks the end day button.
     endButton.addEventListener('click', () => {
       quickGoState.endOdometer = parseFloat(updateInput.value);
       if (isNaN(quickGoState.endOdometer) || quickGoState.endOdometer <= quickGoState.startOdometer) {
@@ -131,23 +135,27 @@ if ("serviceWorker" in navigator) {
         alert("You must be logged in to save an entry.");
         return;
       }
-      db.collection("users").doc(user.uid).collection("logs").add({
-        date: quickGoState.date,
-        startOdometer: quickGoState.startOdometer,
-        endOdometer: quickGoState.endOdometer,
-        kilometersDriven,
-        purpose,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      })
-      .then(() => {
-        alert("Log entry saved!");
-        location.reload(); // Reset the interface
-      })
-      .catch(error => {
-        alert("Error saving log: " + error.message);
-      });
+      db.collection("users")
+        .doc(user.uid)
+        .collection("logs")
+        .add({
+          date: quickGoState.date,
+          startOdometer: quickGoState.startOdometer,
+          endOdometer: quickGoState.endOdometer,
+          kilometersDriven,
+          purpose,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(() => {
+          alert("Log entry saved!");
+          location.reload(); // Reset the interface.
+        })
+        .catch(error => {
+          alert("Error saving log: " + error.message);
+        });
     });
   }
+  
   
   
   // Initialize when page loads
