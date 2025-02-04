@@ -6,7 +6,7 @@
 const stages = [
     "initial contact",
     "quote appointment booked",
-    "seen the job and working on quote",
+    "sighted and working on quote",
     "quote submitted",
     "quote accepted",
     "deposit paid and date booked",
@@ -191,9 +191,7 @@ const stages = [
     notesEl.innerHTML = "<strong>Notes:</strong> " + clientData.notes;
     details.appendChild(notesEl);
     
-    const stageEl = document.createElement("p");
-    stageEl.textContent = "Stage: " + clientData.stage;
-    details.appendChild(stageEl);
+    
     
     // Progress to Next Stage Button (if not at final stage)
     if (clientData.stage !== stages[stages.length - 1]) {

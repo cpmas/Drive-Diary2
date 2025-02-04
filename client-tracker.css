@@ -54,12 +54,13 @@ html, body {
   }
   
   .toggle-btn {
-    padding: 0.75rem;
+    padding: 0.5rem;
     background: #fff;
     color: #000;
     border: none;
-    border-radius: 1.5rem;
+    border-radius: 6rem;
     font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
     transition: background-color 0.3s ease;
   }
@@ -75,6 +76,7 @@ html, body {
     gap: 1rem;
     justify-content: center;
     margin-bottom: 2rem;
+    flex-wrap: wrap;
   }
   
   .new-client-form input,
@@ -85,6 +87,7 @@ html, body {
     font-size: 1rem;
     color: #000;
     background-color: #fff;
+    margin-bottom: 0.5rem;
   }
   
   .new-client-form button {
@@ -94,12 +97,13 @@ html, body {
     border: none;
     border-radius: 1.5rem;
     font-size: 1rem;
+    font-weight: 400;
     cursor: pointer;
     transition: background-color 0.3s ease;
   }
   
   .new-client-form button:hover {
-    background: #e6e6e6;
+    background: #a3a3a3;
   }
   
   /* Stage Containers */
@@ -137,6 +141,9 @@ html, body {
     position: relative;
   }
   
+  .client-card p {
+    text-align: left;
+  }
   /* Card Header (always visible) */
   .card-header {
     display: flex;
@@ -168,12 +175,13 @@ html, body {
   
   /* Buttons within card details (progress, complete, etc.) */
   .client-card button {
-    padding: 0.5rem;
+    padding: 0.6rem;
     background: #fff;
-    color: #000;
-    border: none;
+    color: black;
+    border: solid 1px white;
     border-radius: 1rem;
     font-size: 0.9rem;
+    font-weight: 600;
     cursor: pointer;
     transition: background-color 0.3s ease;
     margin: 0.2rem 0;
