@@ -54,7 +54,7 @@ html, body {
   }
   
   .toggle-btn {
-    padding: 0.5rem;
+    padding: 1rem;
     background: #fff;
     color: #000;
     border: none;
@@ -75,6 +75,7 @@ html, body {
     flex-direction: column;
     gap: 1rem;
     justify-content: center;
+    align-items: stretch;
     margin-bottom: 2rem;
     flex-wrap: wrap;
   }
@@ -93,11 +94,12 @@ html, body {
   .new-client-form button {
     padding: 0.75rem;
     background: #fff;
-    color: #000;
+    align-self: center;
+    color: #2d2d2d;
     border: none;
     border-radius: 1.5rem;
     font-size: 1rem;
-    font-weight: 400;
+    font-weight: 600;
     cursor: pointer;
     transition: background-color 0.3s ease;
   }
