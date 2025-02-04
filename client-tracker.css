@@ -243,3 +243,12 @@ html, body {
     padding-top: 1rem;
   }
   
+  #toggle-deleted-btn {
+    background-color:rgb(195, 157, 157);
+    padding: 1rem 3rem;
+  }
+
+  #toggle-completed-btn {
+    background-color: rgb(169, 197, 169);
+    padding: 1rem 3rem;
+  }
