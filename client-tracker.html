@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Client Tracker - DriveDiary</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <!-- Include FontAwesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="client-tracker.css">
+  <!-- Firebase SDKs (using compat versions) -->
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore-compat.js"></script>
+  <!-- Firebase configuration (make sure this file is configured properly) -->
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+  <!-- Go Back Button -->
+  <a href="index.html" class="go-back-button">&larr; Back</a>
+  
+  <div class="tracker-container">
+    <h1>Client Tracker</h1>
+    
+    <!-- Collapsible New Client Section -->
+    <div id="new-client-section">
+      <button id="toggle-new-client-btn" class="toggle-btn">Add New Client</button>
+      <form id="new-client-form" class="new-client-form" style="display: none;">
+        <input type="text" id="client-name" placeholder="Client Name" required>
+        <input type="text" id="client-phone" placeholder="Phone Number" required>
+        <input type="email" id="client-email" placeholder="Email Address" required>
+        <textarea id="client-notes" placeholder="Notes about the client" rows="3"></textarea>
+        <button type="submit">Add Client</button>
+      </form>
+    </div>
+    
+    <!-- Container for stage sections (active clients) -->
+    <div id="stages-container">
+      <!-- Stage containers will be generated dynamically -->
+    </div>
+    
+    <!-- Toggle Buttons for Deleted and Completed Clients -->
+    <div id="toggle-extra-sections">
+      <button id="toggle-deleted-btn" class="toggle-btn">Show Deleted Clients</button>
+      <button id="toggle-completed-btn" class="toggle-btn">Show Completed Clients</button>
+    </div>
+    
+    <!-- Deleted Clients Section (hidden by default) -->
+    <div id="deleted-container" style="display: none;">
+      <h2>Deleted Clients</h2>
+      <div id="deleted-clients"></div>
+    </div>
+    
+    <!-- Completed Clients Section (hidden by default) -->
+    <div id="completed-container" style="display: none;">
+      <h2>Completed Clients</h2>
+      <div id="completed-clients"></div>
+    </div>
+  </div>
+  
+  <!-- Include the external JS file -->
+  <script src="client-tracker.js"></script>
+</body>
+</html>
