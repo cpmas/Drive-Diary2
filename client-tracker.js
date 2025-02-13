@@ -24,7 +24,7 @@ function toggleStageControls() {
 // Create and append the toggle button (positioned relative to the body)
 const toggleBtn = document.createElement('button');
 toggleBtn.id = 'toggle-stage-controls-btn';
-toggleBtn.innerHTML = '<i class="fas fa-cog"></i>';
+toggleBtn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
 toggleBtn.addEventListener('click', toggleStageControls);
 document.body.appendChild(toggleBtn);
 
@@ -162,8 +162,7 @@ function addStage() {
       .add({
         name: stageName.trim(),
         order: newOrder
-      })
-      .then(() => location.reload());
+      });
   }
 }
 
@@ -176,8 +175,7 @@ function editStage(stageId, currentName) {
       .doc(stageId)
       .update({
         name: newName.trim()
-      })
-      .then(() => location.reload());
+      });
   }
 }
 
@@ -195,8 +193,7 @@ function deleteStage(stageId) {
           .doc(currentUserId)
           .collection("stages")
           .doc(stageId)
-          .delete()
-          .then(() => location.reload());
+          .delete();
       }
     });
 }
@@ -218,11 +215,12 @@ function moveStageUp(stageId) {
       console.log("Detected duplicate order; reassigning:", currentOrder, previousOrder);
     }
     const stageRef = db.collection("users").doc(currentUserId).collection("stages");
-    Promise.all([
-      stageRef.doc(currentStage.id).update({ order: previousOrder }),
-      stageRef.doc(previousStage.id).update({ order: currentOrder })
-    ]).then(() => location.reload())
-      .catch(err => console.error("Error updating stage order:", err));
+    stageRef.doc(currentStage.id).update({ order: previousOrder })
+      .then(() => console.log("Updated current stage order to", previousOrder))
+      .catch(err => console.error("Error updating current stage:", err));
+    stageRef.doc(previousStage.id).update({ order: currentOrder })
+      .then(() => console.log("Updated previous stage order to", currentOrder))
+      .catch(err => console.error("Error updating previous stage:", err));
   } else {
     console.log("Stage is already at the top, cannot move up.");
   }
@@ -242,11 +240,12 @@ function moveStageDown(stageId) {
       console.log("Detected duplicate order; reassigning:", currentOrder, nextOrder);
     }
     const stageRef = db.collection("users").doc(currentUserId).collection("stages");
-    Promise.all([
-      stageRef.doc(currentStage.id).update({ order: nextOrder }),
-      stageRef.doc(nextStage.id).update({ order: currentOrder })
-    ]).then(() => location.reload())
-      .catch(err => console.error("Error updating stage order:", err));
+    stageRef.doc(currentStage.id).update({ order: nextOrder })
+      .then(() => console.log("Updated current stage order to", nextOrder))
+      .catch(err => console.error("Error updating current stage:", err));
+    stageRef.doc(nextStage.id).update({ order: currentOrder })
+      .then(() => console.log("Updated next stage order to", currentOrder))
+      .catch(err => console.error("Error updating next stage:", err));
   } else {
     console.log("Stage is already at the bottom, cannot move down.");
   }
@@ -540,7 +539,7 @@ document.getElementById("new-client-form").addEventListener("submit", function(e
       document.getElementById("new-client-form").style.display = "none";
       document.getElementById("toggle-new-client-btn").style.display = "inline-block";
     });
-}
+});
 
 /* -----------------------------
    Toggle Deleted and Completed Clients Sections
