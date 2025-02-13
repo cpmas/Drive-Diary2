@@ -203,7 +203,6 @@ function deleteStage(stageId) {
 
 /* -----------------------------
    Reordering functions: moveStageUp and moveStageDown
-   These swap the "order" fields of adjacent stage documents in Firestore.
 ----------------------------- */
 function moveStageUp(stageId) {
   const index = customStages.findIndex(stage => stage.id === stageId);
