@@ -1,23 +1,34 @@
-// Remove duplicate declaration of db if firebase-config.js already defines it.
-// For example, if firebase-config.js contains: const db = firebase.firestore();
-// then do not declare it again here.
+// client-tracker.js
+
+
 
 // Define the stages for client progress.
 const stages = [
-    "initial contact",
-    "quote appointment booked",
-    "sighted and working on quote",
-    "quote submitted",
-    "quote accepted",
-    "deposit paid and date booked",
-    "job in progress"
-  ];
+  "initial contact",
+  "quote appointment booked",
+  "seen the job and working on quote",
+  "quote submitted",
+  "quote accepted",
+  "deposit paid and date booked",
+  "job in progress"
+];
+
+// Wrap everything inside the authentication state listener
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+  
+  // Use the authenticated user's UID to create a reference for their clients subcollection.
+  const uid = user.uid;
+  const clientsRef = db.collection("users").doc(uid).collection("clients");
   
   // -----------------------------
   // Real-Time Listener for Active Clients
   // -----------------------------
   function listenActiveClients() {
-    db.collection("clients")
+    clientsRef
       .where("status", "==", "active")
       .orderBy("createdAt")
       .onSnapshot(snapshot => {
@@ -32,7 +43,7 @@ const stages = [
   // Real-Time Listener for Deleted Clients (with Permanent Delete)
   // -----------------------------
   function listenDeletedClients() {
-    db.collection("clients")
+    clientsRef
       .where("status", "==", "deleted")
       .orderBy("createdAt")
       .onSnapshot(snapshot => {
@@ -70,9 +81,8 @@ const stages = [
           permDeleteBtn.textContent = "Permanently Delete";
           permDeleteBtn.addEventListener("click", function() {
             if (confirm("Are you sure you want to permanently delete this client? This action cannot be undone.")) {
-              db.collection("clients").doc(doc.id).delete()
+              clientsRef.doc(doc.id).delete()
                 .then(() => {
-                  // Remove card from UI immediately
                   card.remove();
                 })
                 .catch(error => {
@@ -91,7 +101,7 @@ const stages = [
   // Real-Time Listener for Completed Clients
   // -----------------------------
   function listenCompletedClients() {
-    db.collection("clients")
+    clientsRef
       .where("status", "==", "completed")
       .orderBy("createdAt")
       .onSnapshot(snapshot => {
@@ -191,7 +201,9 @@ const stages = [
     notesEl.innerHTML = "<strong>Notes:</strong> " + clientData.notes;
     details.appendChild(notesEl);
     
-    
+    const stageEl = document.createElement("p");
+    stageEl.textContent = "Stage: " + clientData.stage;
+    details.appendChild(stageEl);
     
     // Progress to Next Stage Button (if not at final stage)
     if (clientData.stage !== stages[stages.length - 1]) {
@@ -201,7 +213,7 @@ const stages = [
         e.stopPropagation();
         const currentIndex = stages.indexOf(clientData.stage);
         const newStage = stages[currentIndex + 1];
-        db.collection("clients").doc(docId).update({
+        clientsRef.doc(docId).update({
           stage: newStage
         });
       });
@@ -214,7 +226,7 @@ const stages = [
       completeBtn.textContent = "Complete";
       completeBtn.addEventListener("click", function(e) {
         e.stopPropagation();
-        db.collection("clients").doc(docId).update({
+        clientsRef.doc(docId).update({
           status: "completed"
         });
       });
@@ -240,7 +252,7 @@ const stages = [
       if (newPhone && newPhone.trim() !== "") updateObj.phone = newPhone.trim();
       if (newEmail && newEmail.trim() !== "") updateObj.email = newEmail.trim();
       if (newNotes !== null) updateObj.notes = newNotes;
-      db.collection("clients").doc(docId).update(updateObj);
+      clientsRef.doc(docId).update(updateObj);
     });
     actionIcons.appendChild(editBtn);
     
@@ -250,7 +262,7 @@ const stages = [
     removeBtn.innerHTML = '<i class="fas fa-trash"></i>';
     removeBtn.addEventListener("click", function(e) {
       e.stopPropagation();
-      db.collection("clients").doc(docId).update({
+      clientsRef.doc(docId).update({
         status: "deleted"
       });
     });
@@ -300,7 +312,7 @@ const stages = [
     const clientEmail = document.getElementById("client-email").value;
     const clientNotes = document.getElementById("client-notes").value;
     
-    db.collection("clients").add({
+    clientsRef.add({
       name: clientName,
       phone: clientPhone,
       email: clientEmail,
@@ -349,4 +361,4 @@ const stages = [
   listenActiveClients();
   listenDeletedClients();
   listenCompletedClients();
-  
+});
