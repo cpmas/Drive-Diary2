@@ -4,8 +4,6 @@
 let currentUserId = null;
 // Array to hold the user's custom stages.
 let customStages = [];
-// Global array to store active client data so we can re-render when stages change.
-let activeClientsData = [];
 
 /* -----------------------------
    Global Toggle for Stage Controls
@@ -23,15 +21,16 @@ function toggleStageControls() {
   });
 }
 
-// Create and append the global toggle button
+// Create and append the toggle button (positioned relative to the body)
 const toggleBtn = document.createElement('button');
 toggleBtn.id = 'toggle-stage-controls-btn';
-toggleBtn.innerHTML = '<i class="fas fa-cog"></i>';
+toggleBtn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
 toggleBtn.addEventListener('click', toggleStageControls);
 document.body.appendChild(toggleBtn);
 
 /* -----------------------------
-   Initialization: wait for auth state.
+   Initialization: wait for the auth state to be ready.
+   Once the user is logged in, set currentUserId and start all listeners.
 ----------------------------- */
 firebase.auth().onAuthStateChanged(user => {
   if (user) {
@@ -47,6 +46,8 @@ firebase.auth().onAuthStateChanged(user => {
 
 /* -----------------------------
    Fetch user stages from Firestore
+   Stages are stored as a subcollection of the user document:
+   users/{uid}/stages
 ----------------------------- */
 function fetchStages() {
   db.collection("users")
@@ -61,29 +62,30 @@ function fetchStages() {
         customStages.push(stage);
       });
       renderStageContainers();
-      // After rendering stages, re-render the active client cards.
-      renderClients();
     });
 }
 
 /* -----------------------------
-   Render Stage Containers (without client cards)
+   Render Stage Containers for Active Clients and stage management controls.
 ----------------------------- */
 function renderStageContainers() {
   const stagesContainer = document.getElementById("stages-container");
   stagesContainer.innerHTML = "";
+
   if (customStages.length === 0) {
     const noStagesMsg = document.createElement("p");
     noStagesMsg.textContent = "No stages defined. Please add a stage.";
     stagesContainer.appendChild(noStagesMsg);
   }
+
   customStages.forEach(stage => {
     const stageDiv = document.createElement("div");
     stageDiv.classList.add("stage-container");
     stageDiv.setAttribute("data-stage-id", stage.id);
+
     const headerContainer = document.createElement("div");
 
-    // Order controls container: up/down buttons
+    // Order controls container: up/down buttons at top-left.
     const orderControls = document.createElement("div");
     orderControls.classList.add("order-controls");
     const upBtn = document.createElement("button");
@@ -104,12 +106,11 @@ function renderStageContainers() {
     orderControls.appendChild(downBtn);
     headerContainer.appendChild(orderControls);
 
-    // Stage name
     const stageHeader = document.createElement("h2");
     stageHeader.textContent = stage.name;
     headerContainer.appendChild(stageHeader);
 
-    // Edit controls container: edit and delete buttons
+    // Edit controls container: edit and delete buttons at top-right.
     const editControls = document.createElement("div");
     editControls.classList.add("edit-controls");
     const editBtn = document.createElement("button");
@@ -133,12 +134,14 @@ function renderStageContainers() {
     headerContainer.appendChild(editControls);
 
     stageDiv.appendChild(headerContainer);
+
     const stageContent = document.createElement("div");
     stageContent.classList.add("stage-content");
     stageDiv.appendChild(stageContent);
+
     stagesContainer.appendChild(stageDiv);
   });
-  // Add Stage button
+
   const addStageBtn = document.createElement("button");
   addStageBtn.id = "add-stage-btn";
   addStageBtn.textContent = "Add Stage";
@@ -147,122 +150,51 @@ function renderStageContainers() {
 }
 
 /* -----------------------------
-   Render Clients into their Stage Containers
+   Stage management functions (Add, Edit, Delete)
 ----------------------------- */
-function renderClients() {
-  // For each active client in our global activeClientsData,
-  // call renderClient to append it to its corresponding stage container.
-  activeClientsData.forEach(client => {
-    renderClient(client.data, client.id);
-  });
+function addStage() {
+  const stageName = prompt("Enter new stage name:");
+  if (stageName && stageName.trim() !== "") {
+    let newOrder = customStages.length;
+    db.collection("users")
+      .doc(currentUserId)
+      .collection("stages")
+      .add({
+        name: stageName.trim(),
+        order: newOrder
+      });
+  }
 }
 
-/* -----------------------------
-   Listen for Active Clients
------------------------------ */
-function listenActiveClients() {
+function editStage(stageId, currentName) {
+  const newName = prompt("Edit stage name:", currentName);
+  if (newName && newName.trim() !== "") {
+    db.collection("users")
+      .doc(currentUserId)
+      .collection("stages")
+      .doc(stageId)
+      .update({
+        name: newName.trim()
+      });
+  }
+}
+
+function deleteStage(stageId) {
   db.collection("users")
     .doc(currentUserId)
     .collection("clients")
-    .where("status", "==", "active")
-    .orderBy("createdAt")
-    .onSnapshot(snapshot => {
-      activeClientsData = [];
-      snapshot.forEach(doc => {
-        activeClientsData.push({ id: doc.id, data: doc.data() });
-      });
-      // Instead of re-rendering stages here, just re-render the client cards.
-      renderClients();
-    });
-}
-
-/* -----------------------------
-   Listen for Deleted Clients
------------------------------ */
-function listenDeletedClients() {
-  db.collection("users")
-    .doc(currentUserId)
-    .collection("clients")
-    .where("status", "==", "deleted")
-    .orderBy("createdAt")
-    .onSnapshot(snapshot => {
-      const container = document.getElementById("deleted-clients");
-      container.innerHTML = "";
-      snapshot.forEach(doc => {
-        const client = doc.data();
-        const card = document.createElement("div");
-        card.classList.add("client-card");
-        card.setAttribute("data-id", doc.id);
-        const nameEl = document.createElement("p");
-        nameEl.classList.add("client-name");
-        nameEl.textContent = client.name;
-        card.appendChild(nameEl);
-        const phoneEl = document.createElement("p");
-        phoneEl.innerHTML = "<strong>Phone:</strong> " + client.phone;
-        card.appendChild(phoneEl);
-        const emailEl = document.createElement("p");
-        emailEl.innerHTML = "<strong>Email:</strong> " + client.email;
-        card.appendChild(emailEl);
-        const notesEl = document.createElement("p");
-        notesEl.innerHTML = "<strong>Notes:</strong> " + client.notes;
-        card.appendChild(notesEl);
-        const statusEl = document.createElement("p");
-        statusEl.textContent = "Deleted";
-        card.appendChild(statusEl);
-        const permDeleteBtn = document.createElement("button");
-        permDeleteBtn.textContent = "Permanently Delete";
-        permDeleteBtn.addEventListener("click", function() {
-          if (confirm("Are you sure you want to permanently delete this client? This action cannot be undone.")) {
-            db.collection("users")
-              .doc(currentUserId)
-              .collection("clients")
-              .doc(doc.id)
-              .delete()
-              .then(() => { card.remove(); })
-              .catch(error => { console.error("Error deleting document: ", error); });
-          }
-        });
-        card.appendChild(permDeleteBtn);
-        container.appendChild(card);
-      });
-    });
-}
-
-/* -----------------------------
-   Listen for Completed Clients
------------------------------ */
-function listenCompletedClients() {
-  db.collection("users")
-    .doc(currentUserId)
-    .collection("clients")
-    .where("status", "==", "completed")
-    .orderBy("createdAt")
-    .onSnapshot(snapshot => {
-      const container = document.getElementById("completed-clients");
-      container.innerHTML = "";
-      snapshot.forEach(doc => {
-        const client = doc.data();
-        const card = document.createElement("div");
-        card.classList.add("client-card");
-        card.setAttribute("data-id", doc.id);
-        const nameEl = document.createElement("p");
-        nameEl.classList.add("client-name");
-        nameEl.textContent = client.name;
-        card.appendChild(nameEl);
-        const phoneEl = document.createElement("p");
-        phoneEl.innerHTML = "<strong>Phone:</strong> " + client.phone;
-        card.appendChild(phoneEl);
-        const emailEl = document.createElement("p");
-        emailEl.innerHTML = "<strong>Email:</strong> " + client.email;
-        card.appendChild(emailEl);
-        const notesEl = document.createElement("p");
-        notesEl.innerHTML = "<strong>Notes:</strong> " + client.notes;
-        card.appendChild(notesEl);
-        const statusEl = document.createElement("p");
-        statusEl.textContent = "Completed";
-        card.appendChild(statusEl);
-        container.appendChild(card);
-      });
+    .where("stageId", "==", stageId)
+    .get()
+    .then(querySnapshot => {
+      if (!querySnapshot.empty) {
+        alert("This stage has clients assigned. Please move them out before deleting.");
+      } else {
+        db.collection("users")
+          .doc(currentUserId)
+          .collection("stages")
+          .doc(stageId)
+          .delete();
+      }
     });
 }
 
@@ -320,7 +252,127 @@ function moveStageDown(stageId) {
 }
 
 /* -----------------------------
-   Render a Single Active Client Card
+   Listen for Active Clients
+----------------------------- */
+function listenActiveClients() {
+  db.collection("users")
+    .doc(currentUserId)
+    .collection("clients")
+    .where("status", "==", "active")
+    .orderBy("createdAt")
+    .onSnapshot(snapshot => {
+      renderStageContainers();
+      snapshot.forEach(doc => {
+        renderClient(doc.data(), doc.id);
+      });
+    });
+}
+
+/* -----------------------------
+   Listen for Deleted Clients
+----------------------------- */
+function listenDeletedClients() {
+  db.collection("users")
+    .doc(currentUserId)
+    .collection("clients")
+    .where("status", "==", "deleted")
+    .orderBy("createdAt")
+    .onSnapshot(snapshot => {
+      const container = document.getElementById("deleted-clients");
+      container.innerHTML = "";
+      snapshot.forEach(doc => {
+        const client = doc.data();
+        const card = document.createElement("div");
+        card.classList.add("client-card");
+        card.setAttribute("data-id", doc.id);
+        
+        const nameEl = document.createElement("p");
+        nameEl.classList.add("client-name");
+        nameEl.textContent = client.name;
+        card.appendChild(nameEl);
+        
+        const phoneEl = document.createElement("p");
+        phoneEl.innerHTML = "<strong>Phone:</strong> " + client.phone;
+        card.appendChild(phoneEl);
+        
+        const emailEl = document.createElement("p");
+        emailEl.innerHTML = "<strong>Email:</strong> " + client.email;
+        card.appendChild(emailEl);
+        
+        const notesEl = document.createElement("p");
+        notesEl.innerHTML = "<strong>Notes:</strong> " + client.notes;
+        card.appendChild(notesEl);
+        
+        const statusEl = document.createElement("p");
+        statusEl.textContent = "Deleted";
+        card.appendChild(statusEl);
+        
+        const permDeleteBtn = document.createElement("button");
+        permDeleteBtn.textContent = "Permanently Delete";
+        permDeleteBtn.addEventListener("click", function() {
+          if (confirm("Are you sure you want to permanently delete this client? This action cannot be undone.")) {
+            db.collection("users")
+              .doc(currentUserId)
+              .collection("clients")
+              .doc(doc.id)
+              .delete()
+              .then(() => { card.remove(); })
+              .catch(error => { console.error("Error deleting document: ", error); });
+          }
+        });
+        card.appendChild(permDeleteBtn);
+        
+        container.appendChild(card);
+      });
+    });
+}
+
+/* -----------------------------
+   Listen for Completed Clients
+----------------------------- */
+function listenCompletedClients() {
+  db.collection("users")
+    .doc(currentUserId)
+    .collection("clients")
+    .where("status", "==", "completed")
+    .orderBy("createdAt")
+    .onSnapshot(snapshot => {
+      const container = document.getElementById("completed-clients");
+      container.innerHTML = "";
+      snapshot.forEach(doc => {
+        const client = doc.data();
+        const card = document.createElement("div");
+        card.classList.add("client-card");
+        card.setAttribute("data-id", doc.id);
+        
+        const nameEl = document.createElement("p");
+        nameEl.classList.add("client-name");
+        nameEl.textContent = client.name;
+        card.appendChild(nameEl);
+        
+        const phoneEl = document.createElement("p");
+        phoneEl.innerHTML = "<strong>Phone:</strong> " + client.phone;
+        card.appendChild(phoneEl);
+        
+        const emailEl = document.createElement("p");
+        emailEl.innerHTML = "<strong>Email:</strong> " + client.email;
+        card.appendChild(emailEl);
+        
+        const notesEl = document.createElement("p");
+        notesEl.innerHTML = "<strong>Notes:</strong> " + client.notes;
+        card.appendChild(notesEl);
+        
+        const statusEl = document.createElement("p");
+        statusEl.textContent = "Completed";
+        card.appendChild(statusEl);
+        
+        container.appendChild(card);
+      });
+    });
+}
+
+/* -----------------------------
+   Render a Single Active Client Card (with collapsible details)
 ----------------------------- */
 function renderClient(clientData, docId) {
   const card = document.createElement("div");
@@ -487,7 +539,7 @@ document.getElementById("new-client-form").addEventListener("submit", function(e
       document.getElementById("new-client-form").style.display = "none";
       document.getElementById("toggle-new-client-btn").style.display = "inline-block";
     });
-}
+});
 
 /* -----------------------------
    Toggle Deleted and Completed Clients Sections
