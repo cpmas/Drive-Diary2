@@ -20,7 +20,7 @@
   
   <div class="tracker-container">
     <h1>Client Tracker</h1>
-    
+
     <!-- Collapsible New Client Section -->
     <div id="new-client-section">
       <button id="toggle-new-client-btn" class="toggle-btn">Add New Client</button>
@@ -29,15 +29,20 @@
         <input type="text" id="client-phone" placeholder="Phone Number" required>
         <input type="email" id="client-email" placeholder="Email Address" required>
         <textarea id="client-notes" placeholder="Notes" rows="3"></textarea>
-        </br>
+        <br/>
         <button type="submit">Add Client</button>
       </form>
     </div>
     
-    <!-- Container for stage sections (active clients) -->
-    <div id="stages-container">
-      <!-- Stage containers will be generated dynamically -->
+    <!-- Section for managing stages -->
+    <div id="stages-management">
+      <!-- The stages-container will be dynamically generated -->
+      <div id="stages-container">
+        <!-- Stage containers (and the Add Stage button) are inserted here -->
+      </div>
     </div>
+    
+    
     
     <!-- Toggle Buttons for Deleted and Completed Clients -->
     <div id="toggle-extra-sections">
