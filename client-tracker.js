@@ -162,9 +162,13 @@ function addStage() {
       .add({
         name: stageName.trim(),
         order: newOrder
+      }).then(() => {
+         // Reload the page to refresh the UI completely
+         location.reload();
       });
   }
 }
+
 
 function editStage(stageId, currentName) {
   const newName = prompt("Edit stage name:", currentName);
