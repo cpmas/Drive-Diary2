@@ -119,7 +119,12 @@ html, body {
   margin: 0 0 1rem;
   font-size: 1.5rem;
   text-transform: capitalize;
+  padding: 0 50px; /* Adjust the value as needed to give enough room */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
 
 /* Stage Content */
 .stage-content {
@@ -288,7 +293,7 @@ html, body {
   color: #ffffff;
   border: none;
   border-radius: 1rem;
-  font-size: 2rem;
+  font-size: 1.2rem;
   cursor: pointer;
   z-index: 2000;
 }
