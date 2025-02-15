@@ -27,72 +27,84 @@
 </head>
 <body>
 
-<div class="viewport">
-  <div class="app">
-    
-    <header class="header">
-      <h1>DriveDiary</h1>
-      <img id="logo" src="logo.png" alt="">
-    </header>
-
-    <div id="outerdiv">
-      <div class="hhs">
-        <div id="quick-go-container">
-          <div id="quick-go-actions">
-              <button id="go-button"><i class="fas fa-car"></i>Loading...</button>
-              <div id="quick-go-update">
-                  <label for="update-start-odometer">Update Start KM:</label>
-                  <input type="number" id="update-start-odometer" placeholder="Start KM">
-              </div>
-          </div>
-          <button id="end-button" style="display: none;">End Day</button>
-        </div>
-      </div>
-      <div class="vvs">
-        <!-- Manual Entry Section -->
-        <div id="log-form">
-          <h2>Manual Entry</h2>
-          <form id="daily-log-form">
-            <div id="date-container">
-              <label for="date">Date:</label>
-              <input type="date" id="date" name="date" required>
-            </div>
-            <div class="odometer-fields">
-              <div class="odometer-field">
-                <label for="start-odometer">Start </br>Odometer:</label>
-                <input type="number" id="start-odometer" name="start-odometer" required>
-              </div>
-              <div class="odometer-field">
-                <label for="end-odometer">End </br>Odometer:</label>
-                <input type="number" id="end-odometer" name="end-odometer" required>
-              </div>
-            </div>
-            <label for="purpose">Purpose:</label>
-            <textarea id="purpose" name="purpose" placeholder="Describe the activity..." required></textarea>
-            <button id="entry-button" type="submit">Save Log</button>
-          </form>
-        </div>
-      </div>
-    </div>
-    
-    <div class="app--body no-scrollbar"></div>
-    
-    <footer class="footer">
-      <a href="index.html"><i class="fas fa-home"></i></a>
-      <a href="log-summary.html"><i class="fas fa-chart-pie"></i></a>
-      <a href="client-tracker.html"><i class="fas fa-users"></i></a>
-      <a href="profile.html"><i class="fas fa-user-alt"></i></a>
-    </footer>
+  <!-- Splash Screen -->
+  <div id="splash-screen">
+    <img id="splash-logo" src="logo.png" alt="Logo">
   </div>
-</div>
+
+  <div class="viewport">
+    <div class="app">
+      
+      <header class="header">
+        <h1>DriveDiary</h1>
+        <img id="logo" src="logo.png" alt="">
+      </header>
+
+      <div id="outerdiv">
+        <div class="hhs">
+          <div id="quick-go-container">
+            <div id="quick-go-actions">
+                <button id="go-button"><i class="fas fa-car"></i>Loading...</button>
+                <div id="quick-go-update">
+                    <label for="update-start-odometer">Update Start KM:</label>
+                    <input type="number" id="update-start-odometer" placeholder="Start KM">
+                </div>
+            </div>
+            <button id="end-button" style="display: none;">End Day</button>
+          </div>
+        </div>
+        <div class="vvs">
+          <!-- Manual Entry Section -->
+          <div id="log-form">
+            <h2>Manual Entry</h2>
+            <form id="daily-log-form">
+              <div id="date-container">
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required>
+              </div>
+              <div class="odometer-fields">
+                <div class="odometer-field">
+                  <label for="start-odometer">Start </br>Odometer:</label>
+                  <input type="number" id="start-odometer" name="start-odometer" required>
+                </div>
+                <div class="odometer-field">
+                  <label for="end-odometer">End </br>Odometer:</label>
+                  <input type="number" id="end-odometer" name="end-odometer" required>
+                </div>
+              </div>
+              <label for="purpose">Purpose:</label>
+              <textarea id="purpose" name="purpose" placeholder="Describe the activity..." required></textarea>
+              <button id="entry-button" type="submit">Save Log</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <div class="app--body no-scrollbar"></div>
+      
+      <footer class="footer">
+        <a href="index.html"><i class="fas fa-home"></i></a>
+        <a href="log-summary.html"><i class="fas fa-chart-pie"></i></a>
+        <a href="client-tracker.html"><i class="fas fa-users"></i></a>
+        <a href="profile.html"><i class="fas fa-user-alt"></i></a>
+      </footer>
+    </div>
+  </div>
 
 <!-- Ensure the user is logged in -->
 <script>
-  firebase.auth().onAuthStateChanged(user => {
-    if (!user) {
-      window.location.href = "login.html";
-    }
-  });
+  firebase.auth().onAuthStateChanged(function(user) {
+  // Hide the splash screen once auth state is determined.
+  document.getElementById('splash-screen').style.display = 'none';
+
+  if (user) {
+    // Show the main content.
+    document.querySelector('.viewport').style.display = 'block';
+  } else {
+    // Redirect to login if not authenticated.
+    window.location.href = "login.html";
+  }
+});
 </script>
 <script src="scripts.js"></script> 
 </body>

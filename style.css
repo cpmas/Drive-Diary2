@@ -284,3 +284,23 @@ label {
 #date-container {
   width: 100%;
 }
+
+/* Splash Screen Styling */
+#splash-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#splash-logo {
+  /* Adjust logo size as needed */
+  width: 5rem;
+  height: auto;
+}
