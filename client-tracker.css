@@ -120,7 +120,7 @@ html, body {
   font-size: 1.5rem;
   text-transform: capitalize;
   padding: 0 50px; /* Adjust the value as needed to give enough room */
- 
+  white-space: normal;
 }
 
 

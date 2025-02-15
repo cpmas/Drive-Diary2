@@ -93,7 +93,7 @@ if ("serviceWorker" in navigator) {
           quickGoState.startOdometer = yesterdayEndKM;
           // Update the go button's text.
           if (yesterdayEndKM) {
-            goButton.innerHTML = `Resume where you left off:<br>Last reading: ${yesterdayEndKM.toLocaleString()} km`;
+            goButton.innerHTML = `Resume From<br>Last Reading: ${yesterdayEndKM.toLocaleString()} km`;
             updateInput.value = yesterdayEndKM;
           } else {
             goButton.textContent = 'Enter Start KM';
