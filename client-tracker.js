@@ -4,6 +4,8 @@
 let currentUserId = null;
 // Array to hold the user's custom stages.
 let customStages = [];
+// Array to hold the active clients (each item is an object with data and id).
+let activeClients = [];
 
 /* -----------------------------
    Global Toggle for Stage Controls
@@ -13,11 +15,7 @@ function toggleStageControls() {
   const controls = document.querySelectorAll('.order-controls, .edit-controls');
   controls.forEach(control => {
     const currentDisplay = window.getComputedStyle(control).display;
-    if (currentDisplay === 'none') {
-      control.style.display = 'block';
-    } else {
-      control.style.display = 'none';
-    }
+    control.style.display = (currentDisplay === 'none' ? 'block' : 'none');
   });
 }
 
@@ -45,6 +43,97 @@ firebase.auth().onAuthStateChanged(user => {
 });
 
 /* -----------------------------
+   Render All: re-render stage containers and active clients
+----------------------------- */
+function renderAll() {
+  // Clear and re-render stage containers based on customStages.
+  const stagesContainer = document.getElementById("stages-container");
+  stagesContainer.innerHTML = "";
+
+  if (customStages.length === 0) {
+    const noStagesMsg = document.createElement("p");
+    noStagesMsg.textContent = "No stages defined. Please add a stage.";
+    stagesContainer.appendChild(noStagesMsg);
+  } else {
+    customStages.forEach(stage => {
+      const stageDiv = document.createElement("div");
+      stageDiv.classList.add("stage-container");
+      stageDiv.setAttribute("data-stage-id", stage.id);
+
+      const headerContainer = document.createElement("div");
+
+      // Order controls container: up/down buttons at top-left.
+      const orderControls = document.createElement("div");
+      orderControls.classList.add("order-controls");
+      const upBtn = document.createElement("button");
+      upBtn.classList.add("icon-btn");
+      upBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+      upBtn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        moveStageUp(stage.id);
+      });
+      orderControls.appendChild(upBtn);
+      const downBtn = document.createElement("button");
+      downBtn.classList.add("icon-btn");
+      downBtn.innerHTML = '<i class="fas fa-arrow-down"></i>';
+      downBtn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        moveStageDown(stage.id);
+      });
+      orderControls.appendChild(downBtn);
+      headerContainer.appendChild(orderControls);
+
+      const stageHeader = document.createElement("h2");
+      stageHeader.textContent = stage.name;
+      headerContainer.appendChild(stageHeader);
+
+      // Edit controls container: edit and delete buttons at top-right.
+      const editControls = document.createElement("div");
+      editControls.classList.add("edit-controls");
+      const editBtn = document.createElement("button");
+      editBtn.classList.add("icon-btn");
+      editBtn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
+      editBtn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        editStage(stage.id, stage.name);
+      });
+      editControls.appendChild(editBtn);
+      const deleteBtn = document.createElement("button");
+      deleteBtn.classList.add("icon-btn");
+      deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+      deleteBtn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        if (confirm("Are you sure you want to delete this stage? Make sure to move all clients out of this stage before deleting or they will be lost.")) {
+          deleteStage(stage.id);
+        }
+      });
+      editControls.appendChild(deleteBtn);
+      headerContainer.appendChild(editControls);
+
+      stageDiv.appendChild(headerContainer);
+
+      const stageContent = document.createElement("div");
+      stageContent.classList.add("stage-content");
+      stageDiv.appendChild(stageContent);
+
+      stagesContainer.appendChild(stageDiv);
+    });
+  }
+
+  // Append the "Add Stage" button.
+  const addStageBtn = document.createElement("button");
+  addStageBtn.id = "add-stage-btn";
+  addStageBtn.textContent = "Add Stage";
+  addStageBtn.addEventListener("click", addStage);
+  stagesContainer.appendChild(addStageBtn);
+
+  // Now, render all active clients into the appropriate stage containers.
+  activeClients.forEach(clientObj => {
+    renderClient(clientObj.data, clientObj.id);
+  });
+}
+
+/* -----------------------------
    Fetch user stages from Firestore
    Stages are stored as a subcollection of the user document:
    users/{uid}/stages
@@ -61,195 +150,8 @@ function fetchStages() {
         stage.id = doc.id;
         customStages.push(stage);
       });
-      renderStageContainers();
+      renderAll();
     });
-}
-
-/* -----------------------------
-   Render Stage Containers for Active Clients and stage management controls.
------------------------------ */
-function renderStageContainers() {
-  const stagesContainer = document.getElementById("stages-container");
-  stagesContainer.innerHTML = "";
-
-  if (customStages.length === 0) {
-    const noStagesMsg = document.createElement("p");
-    noStagesMsg.textContent = "No stages defined. Please add a stage.";
-    stagesContainer.appendChild(noStagesMsg);
-  }
-
-  customStages.forEach(stage => {
-    const stageDiv = document.createElement("div");
-    stageDiv.classList.add("stage-container");
-    stageDiv.setAttribute("data-stage-id", stage.id);
-
-    const headerContainer = document.createElement("div");
-
-    // Order controls container: up/down buttons at top-left.
-    const orderControls = document.createElement("div");
-    orderControls.classList.add("order-controls");
-    const upBtn = document.createElement("button");
-    upBtn.classList.add("icon-btn");
-    upBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-    upBtn.addEventListener("click", function(e) {
-      e.stopPropagation();
-      moveStageUp(stage.id);
-    });
-    orderControls.appendChild(upBtn);
-    const downBtn = document.createElement("button");
-    downBtn.classList.add("icon-btn");
-    downBtn.innerHTML = '<i class="fas fa-arrow-down"></i>';
-    downBtn.addEventListener("click", function(e) {
-      e.stopPropagation();
-      moveStageDown(stage.id);
-    });
-    orderControls.appendChild(downBtn);
-    headerContainer.appendChild(orderControls);
-
-    const stageHeader = document.createElement("h2");
-    stageHeader.textContent = stage.name;
-    headerContainer.appendChild(stageHeader);
-
-    // Edit controls container: edit and delete buttons at top-right.
-    const editControls = document.createElement("div");
-    editControls.classList.add("edit-controls");
-    const editBtn = document.createElement("button");
-    editBtn.classList.add("icon-btn");
-    editBtn.innerHTML = '<i class="fas fa-pencil-alt"></i>';
-    editBtn.addEventListener("click", function(e) {
-      e.stopPropagation();
-      editStage(stage.id, stage.name);
-    });
-    editControls.appendChild(editBtn);
-    const deleteBtn = document.createElement("button");
-    deleteBtn.classList.add("icon-btn");
-    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-    deleteBtn.addEventListener("click", function(e) {
-      e.stopPropagation();
-      if (confirm("Are you sure you want to delete this stage? Make sure to move all clients out of this stage before deleting or they will be lost.")) {
-        deleteStage(stage.id);
-      }
-    });
-    editControls.appendChild(deleteBtn);
-    headerContainer.appendChild(editControls);
-
-    stageDiv.appendChild(headerContainer);
-
-    const stageContent = document.createElement("div");
-    stageContent.classList.add("stage-content");
-    stageDiv.appendChild(stageContent);
-
-    stagesContainer.appendChild(stageDiv);
-  });
-
-  const addStageBtn = document.createElement("button");
-  addStageBtn.id = "add-stage-btn";
-  addStageBtn.textContent = "Add Stage";
-  addStageBtn.addEventListener("click", addStage);
-  stagesContainer.appendChild(addStageBtn);
-}
-
-/* -----------------------------
-   Stage management functions (Add, Edit, Delete)
------------------------------ */
-function addStage() {
-  const stageName = prompt("Enter new stage name:");
-  if (stageName && stageName.trim() !== "") {
-    let newOrder = customStages.length;
-    db.collection("users")
-      .doc(currentUserId)
-      .collection("stages")
-      .add({
-        name: stageName.trim(),
-        order: newOrder
-      });
-    // No need to reload the page; the onSnapshot listener will automatically re-render stages.
-  }
-}
-
-function editStage(stageId, currentName) {
-  const newName = prompt("Edit stage name:", currentName);
-  if (newName && newName.trim() !== "") {
-    db.collection("users")
-      .doc(currentUserId)
-      .collection("stages")
-      .doc(stageId)
-      .update({
-        name: newName.trim()
-      });
-  }
-}
-
-function deleteStage(stageId) {
-  db.collection("users")
-    .doc(currentUserId)
-    .collection("clients")
-    .where("stageId", "==", stageId)
-    .get()
-    .then(querySnapshot => {
-      if (!querySnapshot.empty) {
-        alert("This stage has clients assigned. Please move them out before deleting.");
-      } else {
-        db.collection("users")
-          .doc(currentUserId)
-          .collection("stages")
-          .doc(stageId)
-          .delete();
-      }
-    });
-}
-
-/* -----------------------------
-   Reordering functions: moveStageUp and moveStageDown
------------------------------ */
-function moveStageUp(stageId) {
-  const index = customStages.findIndex(stage => stage.id === stageId);
-  console.log("moveStageUp called for stageId:", stageId, "index:", index);
-  if (index > 0) {
-    const currentStage = customStages[index];
-    const previousStage = customStages[index - 1];
-    let currentOrder = currentStage.order;
-    let previousOrder = previousStage.order;
-    if (currentOrder === previousOrder) {
-      currentOrder = index;
-      previousOrder = index - 1;
-      console.log("Detected duplicate order; reassigning:", currentOrder, previousOrder);
-    }
-    const stageRef = db.collection("users").doc(currentUserId).collection("stages");
-    stageRef.doc(currentStage.id).update({ order: previousOrder })
-      .then(() => console.log("Updated current stage order to", previousOrder))
-      .catch(err => console.error("Error updating current stage:", err));
-    stageRef.doc(previousStage.id).update({ order: currentOrder })
-      .then(() => console.log("Updated previous stage order to", currentOrder))
-      .catch(err => console.error("Error updating previous stage:", err));
-  } else {
-    console.log("Stage is already at the top, cannot move up.");
-  }
-}
-
-function moveStageDown(stageId) {
-  const index = customStages.findIndex(stage => stage.id === stageId);
-  console.log("moveStageDown called for stageId:", stageId, "index:", index);
-  if (index < customStages.length - 1) {
-    const currentStage = customStages[index];
-    const nextStage = customStages[index + 1];
-    let currentOrder = currentStage.order;
-    let nextOrder = nextStage.order;
-    if (currentOrder === nextOrder) {
-      currentOrder = index;
-      nextOrder = index + 1;
-      console.log("Detected duplicate order; reassigning:", currentOrder, nextOrder);
-    }
-    const stageRef = db.collection("users").doc(currentUserId).collection("stages");
-    stageRef.doc(currentStage.id).update({ order: nextOrder })
-      .then(() => console.log("Updated current stage order to", nextOrder))
-      .catch(err => console.error("Error updating current stage:", err));
-    stageRef.doc(nextStage.id).update({ order: currentOrder })
-      .then(() => console.log("Updated next stage order to", currentOrder))
-      .catch(err => console.error("Error updating next stage:", err));
-  } else {
-    console.log("Stage is already at the bottom, cannot move down.");
-  }
 }
 
 /* -----------------------------
@@ -262,10 +164,11 @@ function listenActiveClients() {
     .where("status", "==", "active")
     .orderBy("createdAt")
     .onSnapshot(snapshot => {
-      renderStageContainers();
+      activeClients = [];
       snapshot.forEach(doc => {
-        renderClient(doc.data(), doc.id);
+        activeClients.push({ data: doc.data(), id: doc.id });
       });
+      renderAll();
     });
 }
 
@@ -370,6 +273,109 @@ function listenCompletedClients() {
         container.appendChild(card);
       });
     });
+}
+
+/* -----------------------------
+   Stage management functions (Add, Edit, Delete)
+----------------------------- */
+function addStage() {
+  const stageName = prompt("Enter new stage name:");
+  if (stageName && stageName.trim() !== "") {
+    let newOrder = customStages.length;
+    db.collection("users")
+      .doc(currentUserId)
+      .collection("stages")
+      .add({
+        name: stageName.trim(),
+        order: newOrder
+      });
+    // The onSnapshot listener for stages will trigger renderAll().
+  }
+}
+
+function editStage(stageId, currentName) {
+  const newName = prompt("Edit stage name:", currentName);
+  if (newName && newName.trim() !== "") {
+    db.collection("users")
+      .doc(currentUserId)
+      .collection("stages")
+      .doc(stageId)
+      .update({
+        name: newName.trim()
+      });
+  }
+}
+
+function deleteStage(stageId) {
+  db.collection("users")
+    .doc(currentUserId)
+    .collection("clients")
+    .where("stageId", "==", stageId)
+    .get()
+    .then(querySnapshot => {
+      if (!querySnapshot.empty) {
+        alert("This stage has clients assigned. Please move them out before deleting.");
+      } else {
+        db.collection("users")
+          .doc(currentUserId)
+          .collection("stages")
+          .doc(stageId)
+          .delete();
+      }
+    });
+}
+
+/* -----------------------------
+   Reordering functions: moveStageUp and moveStageDown
+----------------------------- */
+function moveStageUp(stageId) {
+  const index = customStages.findIndex(stage => stage.id === stageId);
+  console.log("moveStageUp called for stageId:", stageId, "index:", index);
+  if (index > 0) {
+    const currentStage = customStages[index];
+    const previousStage = customStages[index - 1];
+    let currentOrder = currentStage.order;
+    let previousOrder = previousStage.order;
+    if (currentOrder === previousOrder) {
+      currentOrder = index;
+      previousOrder = index - 1;
+      console.log("Detected duplicate order; reassigning:", currentOrder, previousOrder);
+    }
+    const stageRef = db.collection("users").doc(currentUserId).collection("stages");
+    stageRef.doc(currentStage.id).update({ order: previousOrder })
+      .then(() => console.log("Updated current stage order to", previousOrder))
+      .catch(err => console.error("Error updating current stage:", err));
+    stageRef.doc(previousStage.id).update({ order: currentOrder })
+      .then(() => console.log("Updated previous stage order to", currentOrder))
+      .catch(err => console.error("Error updating previous stage:", err));
+  } else {
+    console.log("Stage is already at the top, cannot move up.");
+  }
+}
+
+function moveStageDown(stageId) {
+  const index = customStages.findIndex(stage => stage.id === stageId);
+  console.log("moveStageDown called for stageId:", stageId, "index:", index);
+  if (index < customStages.length - 1) {
+    const currentStage = customStages[index];
+    const nextStage = customStages[index + 1];
+    let currentOrder = currentStage.order;
+    let nextOrder = nextStage.order;
+    if (currentOrder === nextOrder) {
+      currentOrder = index;
+      nextOrder = index + 1;
+      console.log("Detected duplicate order; reassigning:", currentOrder, nextOrder);
+    }
+    const stageRef = db.collection("users").doc(currentUserId).collection("stages");
+    stageRef.doc(currentStage.id).update({ order: nextOrder })
+      .then(() => console.log("Updated current stage order to", nextOrder))
+      .catch(err => console.error("Error updating current stage:", err));
+    stageRef.doc(nextStage.id).update({ order: currentOrder })
+      .then(() => console.log("Updated next stage order to", currentOrder))
+      .catch(err => console.error("Error updating next stage:", err));
+  } else {
+    console.log("Stage is already at the bottom, cannot move down.");
+  }
 }
 
 /* -----------------------------
@@ -494,6 +500,7 @@ function renderClient(clientData, docId) {
   card.appendChild(header);
   card.appendChild(details);
   
+  // Append the card to the corresponding stage container.
   const container = document.querySelector(`.stage-container[data-stage-id="${clientData.stageId}"] .stage-content`);
   if (container) {
     container.appendChild(card);
