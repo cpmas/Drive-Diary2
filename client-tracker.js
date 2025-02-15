@@ -163,6 +163,7 @@ function addStage() {
         name: stageName.trim(),
         order: newOrder
       });
+    // No need to reload the page; the onSnapshot listener will automatically re-render stages.
   }
 }
 
